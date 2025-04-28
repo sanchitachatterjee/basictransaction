@@ -44,7 +44,7 @@ const router = useRouter();
   const deleteTransaction = async (id) => {
     try {
       setTransactions((prev) => prev.filter((t) => t._id !== id));
-      await axios.delete("http://localhost:3000/api/transactionhandle", { data: { id } });
+      await axios.delete("/api/transactionhandle", { data: { id } });
       await fetchTransactionDetails();
     } catch (error) {
       console.error("Failed to delete transaction", error);
