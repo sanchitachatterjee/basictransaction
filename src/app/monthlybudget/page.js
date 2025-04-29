@@ -5,7 +5,7 @@ import {Button} from "@/components/ui/button";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
-export default function BudgetForm () {
+export default function MonthlyBudget () {
   const [month,setMonth] = useState("");
   const [category,setCategory] = useState("");
   const [budget,setBudget] = useState("");

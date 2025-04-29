@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
-export default function insightPage() {
+export default function InsightPage() {
     const [insights, setInsights] = useState([]);
     const router=useRouter()
     useEffect(() => { fetchDetails(); }, []);
