@@ -33,7 +33,7 @@ if(req.method === "GET") {
         const monthlyBudgets = await MonthlyBudget.find();
         const insight=transactions.map((t) => {
           const budget=monthlyBudgets.find(b => b.category === t._id);
-          return { category: t._id, totalSpent: t.totalAmount, budget:budget.budget};
+          return { category: t._id, totalSpent: t.totalAmount, budget: budget?.budget ?? 0};
         });
     return res.status(200).json(insight)
       } 
@@ -43,5 +43,5 @@ if(req.method === "GET") {
       }
 } 
 
-  res.setHeader("Allow", ["POST"],["GET"]);
+  res.setHeader("Allow", ["POST","GET"]);
 }

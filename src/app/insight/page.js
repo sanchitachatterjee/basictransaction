@@ -2,10 +2,11 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function insightPage() {
     const [insights, setInsights] = useState([]);
-
+    const router=useRouter()
     useEffect(() => { fetchDetails(); }, []);
 
     const fetchDetails = async () => {
@@ -19,13 +20,13 @@ export default function insightPage() {
 
     return (
         <div>
-            <h2>Insights Details</h2>
+            <h2 className="font-bold">Insights Details</h2>
             {insights.length > 0 ? (
                 insights.map((i) => (
-                    <ul key={i.category} className="space-y-2">
+                    <ul key={i.category}>
+                         <li>Category: {i.category}</li>
                         <li>Budget: {i.budget}</li>
                         <li>Total Spending: {i.totalSpent}</li>
-                        <li>Category: {i.category}</li>
                     </ul>
                 ))
             ) : (
