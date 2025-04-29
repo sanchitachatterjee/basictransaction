@@ -231,6 +231,11 @@ export default function TransactionsPage() {
         Show Categorywise Bar Chart
         </Button>
         </div>
+        <div> 
+        <Button className="mt-6 bg-sky-700 text-white" onClick={() => router.push("/monthlybudget") } >
+        Set Monthly Budget
+        </Button>
+        </div>
       </div>
       <div>
         {summary && (
