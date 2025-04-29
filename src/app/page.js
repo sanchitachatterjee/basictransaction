@@ -5,6 +5,19 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import axios from "axios";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SelectGroup,
+} from "@/components/ui/select"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState([]);
@@ -13,7 +26,12 @@ export default function TransactionsPage() {
   const [description, setDescription] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editTransaction, setEditTransaction] = useState(null);
-const router = useRouter();
+  const [category, setCategory] = useState("")
+  const [totalExpenses, setTotalExpenses] = useState([])
+  const [categoryBreakdown, setCategoryBreakdown] = useState([])
+  const [recentTransaction, setRecentTransactions] = useState([])
+  const [summary, setSummary] = useState(true)
+  const router = useRouter();
 
   useEffect(() => {
     fetchTransactionDetails();
@@ -29,13 +47,14 @@ const router = useRouter();
   };
 
   const addTransaction = async () => {
-    if (!amount || !date || !description) return;
+    if (!amount || !date || !description || !category) return;
     try {
-      const { data } = await axios.post("/api/transactionhandle", { amount, date, description });
+      const { data } = await axios.post("/api/transactionhandle", { amount, date, description,category});
       setTransactions((prev) => [...prev, data]);
       setAmount("");
       setDate("");
       setDescription("");
+      setCategory("")
     } catch (error) {
       console.error("Failed to add transaction", error);
     }
@@ -64,6 +83,34 @@ const router = useRouter();
   };
 
 
+
+  const total = async () => {
+    try {
+      const { data } = await axios.get("/api/transactionqueries")
+      console.log(data)
+      setTotalExpenses(data.totalTransactions)
+    } catch (error) {
+      console.error("Failed to fetch total transactions", error);
+    }
+  }
+
+  const categorywisedata = async () => {
+    try {
+      const { data } = await axios.get("/api/transactionqueries")
+      setCategoryBreakdown(data.categoryTransactions)
+    } catch (error) {
+      console.error("Failed to fetch total transactions", error);
+    }
+  }
+
+  const recentdata = async () => {
+    try {
+      const { data } = await axios.get("/api/transactionqueries")
+      setRecentTransactions(data.recentTransactions)
+    } catch (error) {
+      console.error("Failed to fetch total transactions", error);
+    }
+  }
   return (
     <div className="max-w-3xl mx-auto mt-10 p-6 space-y-8 bg-sky-100 border-2 rounded-lg">
       <h1 className="text-3xl text-white font-bold mb-6 border p-1 rounded-2xl bg-sky-700 text-center">Transaction Tracker</h1>
@@ -71,14 +118,14 @@ const router = useRouter();
       <div className="space-y-4 p-4">
         <h2 className="text-xl font-semibold">Add Transaction</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Input
             type="number"
             placeholder="Amount"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
           />
-          <Input
+          <input
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
@@ -89,6 +136,19 @@ const router = useRouter();
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
+          <Select value={category} onValueChange={(value) => setCategory(value)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select a Category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="fd">Fixed Deposit</SelectItem>
+                <SelectItem value="investment">Investment</SelectItem>
+                <SelectItem value="stockmarket">Stock Market</SelectItem>
+                <SelectItem value="others">Other</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
 
         <Button onClick={addTransaction} className="bg-sky-700 text-white">Add Transaction</Button>
@@ -160,10 +220,49 @@ const router = useRouter();
           )}
       </div>
 
-      <div className="flex justify-center">
-        <Button className="mt-6 bg-sky-700 text-white" onClick={()=>{router.push("/transactionchart")}}>
+      <div className="flex-col justify-center">
+        <div>
+        <Button className="mt-6 bg-sky-700 text-white" onClick={() => { router.push("/transactionchart") }}>
           Show Monthly Expenses Bar Chart
         </Button>
+        </div>
+        <div> 
+        <Button className="mt-6 bg-sky-700 text-white" onClick={() => router.push("/categorywisechart") } >
+        Show Categorywise Bar Chart
+        </Button>
+        </div>
+      </div>
+      <div>
+        {summary && (
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="mt-6 bg-sky-700 text-white" onClick={() =>{total(),categorywisedata(),recentdata(), setSummary(true)}}>Show Summary</Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+              <div className="grid gap-4">
+                <div className="space-y-2">
+                  <h4 className="font-medium leading-none">Summary</h4>
+                </div>
+                <div className="grid gap-2">
+                  <div className="grid grid-cols-3 items-center gap-4">
+                    {/* <p>Total expenses :- {totalExpenses.totalAmount}</p> */}
+                  </div>
+                  <div className="grid grid-cols-3 items-center gap-4">
+                    {categoryBreakdown.map((e, i) => (<h4 key={i}>Category:-{e._id} Amount:-{e.total} </h4>))}
+                  </div>
+                  <div className="grid grid-cols-3 items-center gap-4">
+                    Recent Transactions:-
+                    {recentTransaction?.slice(0, 3).map((e, i) => (
+                      <div key={i} className="mb-2">
+                        <p className="font-medium">{e.amount} {e.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        )}
       </div>
     </div>
   );

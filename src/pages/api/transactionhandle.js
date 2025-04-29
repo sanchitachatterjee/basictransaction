@@ -1,11 +1,11 @@
 import dbConnect from "@/lib/db";
-import Transaction from "@/models/transactionmodel";
+import newTransaction from "@/models/transactionmodel";
 
 export default async function handler(req, res) {
   await dbConnect();
   if (req.method === "GET") {
     try {
-        const transactions = await Transaction.find({});
+        const transactions = await newTransaction.find({});
         return res.status(200).json(transactions);
     }
        catch (error) { 
@@ -14,8 +14,9 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    try {  
-      const transaction = await Transaction.create(req.body);
+    try {    
+      console.log(req.body)
+      const transaction = await newTransaction.create(req.body);
       return res.status(201).json(transaction);
     } catch (error) {
       return res.status(400).json({ error: error.message });
@@ -25,7 +26,7 @@ export default async function handler(req, res) {
   if (req.method === "PUT") {
     const { id, ...data } = req.body;
     try {
-      const transaction = await Transaction.findByIdAndUpdate(id, data, { new: true });
+      const transaction = await newTransaction.findByIdAndUpdate(id, data, { new: true });
       return res.status(200).json(transaction);
     } catch (error) {
       return res.status(400).json({ error: error.message });
@@ -35,7 +36,7 @@ export default async function handler(req, res) {
   if (req.method === "DELETE") {
     const { id } = req.body;
     try {
-        await Transaction.findByIdAndDelete(id);
+        await newTransaction.findByIdAndDelete(id);
     } catch (error) {
       return res.status(400).json({ error: error.message });
     }
